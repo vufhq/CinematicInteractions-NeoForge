@@ -1,3 +1,13 @@
+# Cinematic Interactions — NeoForge 26.3 port
+
+> **This repository is an unofficial port of Cinematic Interactions to Minecraft 26.3 on NeoForge 26.3.0.99.**
+> The original mod is by **Southware** ([dcvke/CinematicInteractions](https://github.com/dcvke/CinematicInteractions), MIT license).
+> The port lives in [`neoforge/26.3`](neoforge/26.3); see its [README](neoforge/26.3/README.md) for what changed and how to build it
+> (Java 25, `gradlew build`, output in `neoforge/26.3/build/libs/`).
+> Everything below is the original project's README, kept unchanged.
+
+---
+
 # Cinematic Interactions
 
 ## Current beta builds
