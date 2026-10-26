@@ -1,0 +1,112 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.moddev' version '2.0.148'
+    id 'idea'
+}
+
+tasks.named('wrapper', Wrapper).configure {
+    distributionType = Wrapper.DistributionType.BIN
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = 'Cinematic Interaction-NeoForge-26.3'
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
+
+neoForge {
+    version = project.neo_version
+
+    runs {
+        client {
+            client()
+            gameDirectory = project.file('run/client')
+        }
+        server {
+            server()
+            gameDirectory = project.file('run/server')
+            programArgument '--nogui'
+        }
+        // Development-only scripted walkthrough of every station; screenshots go to run/showcase/screenshots.
+        showcase {
+            client()
+            gameDirectory = project.file('run/showcase')
+            systemProperty 'cinematic.showcase', 'true'
+            systemProperty 'cinematic.showcase.world', (project.findProperty('showcaseWorld') ?: "cinematic-showcase-${System.currentTimeMillis()}").toString()
+            systemProperty 'cinematic.showcase.from', (project.findProperty('from') ?: '0').toString()
+            systemProperty 'cinematic.showcase.only', (project.findProperty('only') ?: 'false').toString()
+            systemProperty 'cinematic.showcase.editorBatch', (project.findProperty('editorBatch') ?: 'false').toString()
+            programArguments.addAll '--width', '1600', '--height', '900'
+        }
+        clientOnlySmoke {
+            client()
+            gameDirectory = project.file('run/client-only-smoke')
+            systemProperty 'cinematic.clientOnlySmoke', 'true'
+        }
+        configureEach {
+            logLevel = org.slf4j.event.Level.INFO
+            if (project.hasProperty('traceMixins')) systemProperty 'mixin.debug.export', 'true'
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+repositories {
+    maven { url = 'https://api.modrinth.com/maven'; content { includeGroup 'maven.modrinth' } }
+}
+
+dependencies {
+    // Optional integrations: none of these mods are bundled or required to run Cinematic Interactions.
+    compileOnly 'maven.modrinth:cloth-config:GchRXPnb'
+    compileOnly 'maven.modrinth:inventory-particles:W00hfLdP'
+    compileOnly 'maven.modrinth:inventory-interactions:FSW248Aj'
+    compileOnly 'maven.modrinth:polymorph_plus:Tr3XP0S9'
+    compileOnly 'maven.modrinth:jei:E9U1GVrH'
+    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+    if (project.hasProperty('withSettings')) runtimeOnly 'maven.modrinth:cloth-config:GchRXPnb'
+    if (project.hasProperty('withJei')) runtimeOnly 'maven.modrinth:jei:E9U1GVrH'
+}
+
+var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
+    var replaceProperties = [
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            neo_version            : neo_version,
+            loader_version_range   : loader_version_range,
+            mod_id                 : mod_id,
+            mod_name               : mod_name,
+            mod_license            : mod_license,
+            mod_version            : mod_version,
+    ]
+    inputs.properties replaceProperties
+    expand replaceProperties
+    from "src/main/templates"
+    into "build/generated/sources/modMetadata"
+}
+sourceSets.main.resources.srcDir generateModMetadata
+neoForge.ideSyncTask generateModMetadata
+
+jar {
+    from('../../LICENSE')
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 25
+    options.compilerArgs += ['-Xmaxerrs', '1000']
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
+}

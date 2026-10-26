@@ -1,0 +1,41 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+logoFile="cinematic_logo.png"
+authors="Southware"
+description='''
+First-person cinematic scenes instead of block windows: craft right on the table top, load the furnace by hand, forge at the anvil, read the book on a lectern, sit down by the fire.
+'''
+
+[[mixins]]
+config="${mod_id}.mixins.json"
+
+[[accessTransformers]]
+file="META-INF/accesstransformer.cfg"
+
+[[dependencies.${mod_id}]]
+    modId="neoforge"
+    type="required"
+    versionRange="[${neo_version},)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+# Optional: with it, the settings get a tabbed screen of their own; without it, the built-in screen is used.
+[[dependencies.${mod_id}]]
+    modId="cloth_config"
+    type="optional"
+    versionRange="*"
+    ordering="NONE"
+    side="CLIENT"
